@@ -67,7 +67,6 @@ public:
     {}
 
     String getName() const override { return name; }
-
     size_t getNumberOfArguments() const override { return 2; }
     bool useDefaultImplementationForConstants() const override { return true; }
     bool isSuitableForShortCircuitArgumentsExecution(const DataTypesWithConstInfo & /*arguments*/) const override { return true; }
@@ -91,6 +90,7 @@ public:
         const ColumnPtr & arr_ptr = arguments[1].column;
 
         const ColumnString * col_haystack_vector = checkAndGetColumn<ColumnString>(&*column_haystack);
+        assert(col_haystack_vector);
 
         const ColumnConst * col_const_arr = checkAndGetColumnConst<ColumnArray>(arr_ptr.get());
 
@@ -120,12 +120,9 @@ public:
 
         auto & vec_res = col_res->getData();
         auto & offsets_res = col_offsets->getData();
-
         // the implementations are responsible for resizing the output column
-        if (col_haystack_vector)
-            Impl::vectorConstant(col_haystack_vector->getChars(), col_haystack_vector->getOffsets(), refs, vec_res, offsets_res);
-        else
-            throw Exception(ErrorCodes::ILLEGAL_COLUMN, "Illegal column {}", arguments[0].column->getName());
+
+        Impl::vectorConstant(col_haystack_vector->getChars(), col_haystack_vector->getOffsets(), refs, vec_res, offsets_res);
 
         if constexpr (Impl::is_column_array)
             return ColumnArray::create(std::move(col_res), std::move(col_offsets));
