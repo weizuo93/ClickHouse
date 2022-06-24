@@ -144,8 +144,8 @@ public:
     }
 
 private:
-    size_t max_hyperscan_regexp_length;
-    size_t max_hyperscan_regexp_total_length;
+    const size_t max_hyperscan_regexp_length;
+    const size_t max_hyperscan_regexp_total_length;
 };
 
 }
